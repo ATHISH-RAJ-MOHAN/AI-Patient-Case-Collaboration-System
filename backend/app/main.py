@@ -1,5 +1,3 @@
-# Q) I want an end point that checks if the database is connected.
-# Soln:) create a route, Inject a DB session, RUN SQL
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -8,8 +6,7 @@ from app.db import get_db
 
 app = FastAPI(title = "Healthcare Group Chat API")
 
-# Since FrontEnd will call backend I need middleware
-
+# Since FrontEnd will call backend we need middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ["*"]
