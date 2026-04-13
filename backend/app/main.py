@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_db
+
 from app.routers.auth import router as auth_router
+from app.routers.cases import router as cases_router 
+from app.routers.chat import router as chat_router
 
 app = FastAPI(title = "Healthcare Group Chat API")
 
@@ -17,10 +20,14 @@ app.add_middleware(
 ) 
 
 app.include_router(auth_router)
+app.include_router(cases_router)
+app.include_router(chat_router)
+
 
 @app.get('/')
 async def root():
     return {"message":"Backend is running"}
+
 # create a route
 @app.get("/health_check-db") # this is an endpoint to test the database connection
 # Inject DB Session

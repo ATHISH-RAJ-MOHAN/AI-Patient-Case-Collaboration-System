@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Test</title>
+</head>
+<body>
+    <h2>WebSocket Chat Test</h2>
+
+    <label>Token:</label><br>
+    <input id="token" style="width: 500px;"><br><br>
+
+    <label>Case ID:</label><br>
+    <input id="caseId" value="3"><br><br>
+
+    <button onclick="connect()">Connect</button>
+    <button onclick="sendMessage()">Send Message</button>
+
+    <h3>Message:</h3>
+    <input id="message" style="width: 300px;"><br><br>
+
+    <h3>Chat Output:</h3>
+    <div id="chat" style="border:1px solid black; height:300px; overflow:auto;"></div>
+
+    <script>
+        let ws = null;
+
+        function connect() {
+            const token = document.getElementById("token").value;
+            const caseId = document.getElementById("caseId").value;
+
+            const url = `ws://127.0.0.1:8000/cases/ws/cases/${caseId}?token=${token}`;
+            ws = new WebSocket(url);
+
+            ws.onopen = () => {
+                log("Connected");
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                log("received : " + JSON.stringify(data));
+            };
+
+            ws.onerror = (err) => {
+                log("Error");
+                console.error(err);
+            };
+
+            ws.onclose = () => {
+                log(" Disconnected");
+            };
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+
+            if (!ws) {
+                alert("Not connected");
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                content: message,
+                message_type: "text"
+            }));
+
+            log(" Sent: " + message);
+        }
+
+        function log(msg) {
+            const chat = document.getElementById("chat");
+            chat.innerHTML += "<div>" + msg + "</div>";
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>
