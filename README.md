@@ -76,59 +76,86 @@ http://127.0.0.1:8000/docs
 This guide walks through the full backend workflow: authentication, case management, and real‑time chat.
 
 ### Step 1: Create Users
+```
 Admin
 { "full_name": "Admin One", "email": "admin@test.com", "password": "admin123", "role": "admin" }
 Doctor
 { "full_name": "Dr. Alice", "email": "alice@test.com", "password": "alice123", "role": "doctor" }
+```
 
 ### Step 2: Login
+```
 POST /auth/login
 Copy the returned JWT token.
+```
 
 ### Step 3: Authorize in Swagger
+```
 Click Authorize and paste:
 Bearer YOUR_TOKEN_HERE
+```
 
 ### Step 4: Create a Case Room
+```
 POST /cases
 Body: { "patient_code": "P1001", "case_title": "Cardiology Review" }
+```
 
 ### Step 5: Add Member to Case
+```
 POST /cases/{case_id}/members
 Body: { "user_id": 2, "member_role": "doctor" }
+```
 
 ### Step 6: Verify Case Access
+```
 As Admin
 GET /cases
+
 As Doctor
 Login as doctor → Authorize → GET /cases
+```
 
 ### Chat (REST API)
+```
 Send Message
 POST /cases/{case_id}/messages
 Body: { "content": "Patient is stable. Please review labs", "message_type": "text" }
+
 Get Messages
 GET /cases/{case_id}/messages
+```
 
 ### Real-Time Chat (WebSocket)
+
 ### 1. Open the test HTML file
+```
 test_chat.html
+```
 ### 2. Enter values
+```
 Token → paste JWT (without "Bearer")
 Case ID → e.g., 3
+```
 ### 3. Connect
+```
 Click Connect
 You should see:
 Connected
+```
 ### 4. Send a message
+```
 Type a message → Send Message
+```
 ### 5. Multi‑User Chat Test
+```
 Open two browser tabs:
 Tab 1 → Admin login
 Tab 2 → Doctor login
 Connect both to the same case_id.
 Send a message from one tab.
 Both tabs should receive the message instantly.
+```
 
 
 ---
