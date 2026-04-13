@@ -25,17 +25,33 @@ This forms the foundation for protected doctor‑only features in the healthcare
 ```
 AI-Patient-Case-Collaboration-System/
 │
-├── app/
-│   ├── main.py
-│   ├── db.py
-│   ├── models.py
-│   ├── security.py
-│   ├── routers/
-│   │     └── auth.py
-│   └── schemas.py
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── db.py
+│   │   ├── deps.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── security.py
+│   │   ├── auth.py
+│   │   ├── routers/
+│   │   │   ├── auth.py
+│   │   │   ├── cases.py
+│   │   │   ├── chat.py
+│   │   │   └── documents.py
+│   │   └── __pycache__/
+│   │
+│   ├── requirements.txt
+│   ├── testchat.html
+│   ├── uploads/
+│   ├── sql/
+│   │   ├── schema.sql
+│   │   └── setup.sql
+│   ├── .env
+│   ├── .gitignore
+│   └── README.md
 │
-├── requirements.txt
-└── README.md
+└── env/   (ignored by Git)
 ```
 
 ---
@@ -103,6 +119,7 @@ Body: { "patient_code": "P1001", "case_title": "Cardiology Review" }
 
 ### Step 5: Add Member to Case
 ```
+First enter the Case Id created in the place holder.
 POST /cases/{case_id}/members
 Body: { "user_id": 2, "member_role": "doctor" }
 ```
@@ -169,3 +186,4 @@ Both tabs should receive the message instantly.
   JWT_SECRET=<your_jwt_secret>
   ```
 - Replace `<user>`, `<password>`, `<host>`, and `<db_name>` with your actual MySQL details, and set a secure value for `JWT_SECRET`.
+- Please refer you sql database tables for any case id's or user id's.
