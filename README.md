@@ -13,7 +13,7 @@ This backend powers the AI‑Patient‑Case Collaboration System, a platform des
 - Async SQLAlchemy models (User)  
 - Secure token decoding and validation  
 - Multi user group chat using websockets with http endpoints 
-- simple html page for testing the multi user
+- Simple html page for testing the multi-user group chat
 
 
 This forms the foundation for protected doctor‑only features in the healthcare system.
@@ -186,4 +186,4 @@ Both tabs should receive the message instantly.
   JWT_SECRET=<your_jwt_secret>
   ```
 - Replace `<user>`, `<password>`, `<host>`, and `<db_name>` with your actual MySQL details, and set a secure value for `JWT_SECRET`.
-- Please refer you sql database tables for any case id's or user id's.
+- Please refer your sql database tables for any case id's or user id's.
