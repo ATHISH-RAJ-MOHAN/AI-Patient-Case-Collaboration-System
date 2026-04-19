@@ -47,3 +47,14 @@ class Message(Base):
     edited_at = Column(DateTime, nullable=True)
     is_deleted = Column(Boolean, nullable=False, server_default=text("0"))
 
+class Document(Base):
+    __tablename__ = "documents"
+
+    id = Column(BigInteger, primary_key = True, autoincrement=True)
+    case_id = Column(BigInteger, ForeignKey("patient_cases.id"), nullable=False)
+    uploaded_by = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    file_name = Column(String(255), nullable=False)
+    file_type = Column(String(20), nullable = False)
+    file_path = Column(String(500), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.current_timestamp())
+    

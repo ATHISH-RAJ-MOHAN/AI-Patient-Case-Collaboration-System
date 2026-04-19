@@ -14,6 +14,8 @@ This backend powers the AI‑Patient‑Case Collaboration System, a platform des
 - Secure token decoding and validation  
 - Multi user group chat using websockets with http endpoints 
 - simple html page for testing the multi user
+- document sharing (reports, images, PDFs)
+- AI-powered question answering using embeddings (RAG)
 
 
 This forms the foundation for protected doctor‑only features in the healthcare system.
@@ -25,17 +27,32 @@ This forms the foundation for protected doctor‑only features in the healthcare
 ```
 AI-Patient-Case-Collaboration-System/
 │
-├── app/
-│   ├── main.py
-│   ├── db.py
-│   ├── models.py
-│   ├── security.py
-│   ├── routers/
-│   │     └── auth.py
-│   └── schemas.py
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── db.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── security.py
+│   │   ├── ai/
+│   │   │     ├── ai.py
+│   │   │     ├── document_processor.py
+│   │   │     ├── chunking.py
+│   │   │     ├── embeddings.py
+│   │   │     └── faiss_store.py
+│   │   ├── routers/
+│   │   │     ├── auth.py
+│   │   │     ├── cases.py
+│   │   │     ├── chat.py
+│   │   │     ├── documents.py
+│   │   │     └── ai.py
+│   │
+│   ├── requirements.txt
 │
-├── requirements.txt
+├── uploads/
+├── faiss_indexes/
 └── README.md
+
 ```
 
 ---
@@ -129,8 +146,11 @@ Tab 2 → Doctor login
 Connect both to the same case_id.
 Send a message from one tab.
 Both tabs should receive the message instantly.
-
-
+### 6. AI Test : 
+#### AI responds in chat, Answer is based on uploaded document, Case isolation maintained
+```
+@ai summarize this report
+```
 ---
 
 ## Note:

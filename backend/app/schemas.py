@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, ConfigDict
-
+from typing import List
 class UserCreate(BaseModel):
     full_name: str
     email: EmailStr
@@ -68,3 +68,28 @@ class MessageOut(BaseModel):
     is_deleted: bool
 
     model_config = ConfigDict(from_attributes = True)
+
+class DocumentOut(BaseModel):
+    id: int
+    case_id: int
+    uploaded_by: int
+    file_name: str
+    file_type: str
+    file_path: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+class AIQueryRequest(BaseModel):
+    case_id: int
+    question: str
+
+class AISource(BaseModel):
+    chunk: str
+    score: float
+
+class AIQueryResponse(BaseModel):
+    answer: str
+    sources: List[AISource] = []
