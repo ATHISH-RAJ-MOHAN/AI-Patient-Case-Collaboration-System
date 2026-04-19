@@ -13,13 +13,10 @@ This backend powers the AI‑Patient‑Case Collaboration System, a platform des
 - Async SQLAlchemy models (User)  
 - Secure token decoding and validation  
 - Multi user group chat using websockets with http endpoints 
-<<<<<<< HEAD
 - simple html page for testing the multi user
 - document sharing (reports, images, PDFs)
 - AI-powered question answering using embeddings (RAG)
-=======
 - Simple html page for testing the multi-user group chat
->>>>>>> a2fbf2550ef1c4305a0a85cedaac0255acb229e8
 
 
 This forms the foundation for protected doctor‑only features in the healthcare system.
@@ -35,7 +32,6 @@ AI-Patient-Case-Collaboration-System/
 │   ├── app/
 │   │   ├── main.py
 │   │   ├── db.py
-<<<<<<< HEAD
 │   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── security.py
@@ -58,31 +54,6 @@ AI-Patient-Case-Collaboration-System/
 ├── faiss_indexes/
 └── README.md
 
-=======
-│   │   ├── deps.py
-│   │   ├── models.py
-│   │   ├── schemas.py
-│   │   ├── security.py
-│   │   ├── auth.py
-│   │   ├── routers/
-│   │   │   ├── auth.py
-│   │   │   ├── cases.py
-│   │   │   ├── chat.py
-│   │   │   └── documents.py
-│   │   └── __pycache__/
-│   │
-│   ├── requirements.txt
-│   ├── testchat.html
-│   ├── uploads/
-│   ├── sql/
-│   │   ├── schema.sql
-│   │   └── setup.sql
-│   ├── .env
-│   ├── .gitignore
-│   └── README.md
-│
-└── env/   (ignored by Git)
->>>>>>> a2fbf2550ef1c4305a0a85cedaac0255acb229e8
 ```
 
 ---
@@ -203,7 +174,7 @@ Tab 2 → Doctor login
 Connect both to the same case_id.
 Send a message from one tab.
 Both tabs should receive the message instantly.
-
+```
 ### 6. AI Test : 
 #### AI responds in chat, Answer is based on uploaded document, Case isolation maintained
 ```
@@ -215,9 +186,9 @@ Both tabs should receive the message instantly.
 
 ### Update your `.env` file before running the server
 - In `.env` file of the project root, add your database credentials and JWT settings:
-  ```
-  DATABASE_URL=mysql+aiomysql://<user>:<password>@<host>:3306/<db_name>
-  JWT_SECRET=<your_jwt_secret>
-  ```
+```
+DATABASE_URL=mysql+aiomysql://<user>:<password>@<host>:3306/<db_name>
+JWT_SECRET=<your_jwt_secret>
+```
 - Replace `<user>`, `<password>`, `<host>`, and `<db_name>` with your actual MySQL details, and set a secure value for `JWT_SECRET`.
 - Please refer your sql database tables for any case id's or user id's.
