@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt
 
 from app.db import get_db
 from app.models import User
-from app.schemas import Token, UserCreate, UserLogin, UserOut
+from app.schemas import Token, UserCreate, UserLogin, UserOut, UserSearchOut
 from app.security import (
     create_access_token,
     get_current_user,
@@ -73,6 +73,36 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
 @router.post("/logout")
 async def logout():
     return {"messages":"Logged out successfully"}
+
+
+@router.get("/users/search", response_model=list[UserSearchOut])
+async def search_users(
+    q: str = Query("", description="Search by user name or email"),
+    limit: int = Query(8, ge=1, le=20),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    search_term = q.strip().lower()
+    if len(search_term) < 2:
+        return []
+
+    pattern = f"%{search_term}%"
+    result = await db.execute(
+        select(User)
+        .where(
+            User.is_active.is_(True),
+            User.id != current_user.id,
+            or_(
+                func.lower(User.full_name).like(pattern),
+                func.lower(User.email).like(pattern),
+            ),
+        )
+        .order_by(User.full_name.asc())
+        .limit(limit)
+    )
+
+    return result.scalars().all()
+
 
 # Current User
 @router.get("/me", response_model=UserOut)

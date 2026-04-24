@@ -1,27 +1,43 @@
-import os
+import pickle
+from pathlib import Path
+from typing import List, Tuple
+
 import faiss
 import numpy as np
-from typing import List, Tuple
-import pickle
 
 # Folder to store FAISS indexes
-FAISS_DIR = "faiss_indexes"
-os.makedirs(FAISS_DIR, exist_ok=True)
+FAISS_DIR = Path(__file__).resolve().parents[2] / "faiss_indexes"
+FAISS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Helper: get file paths
 def get_index_path(case_id: int) -> str:
-    return os.path.join(FAISS_DIR, f"case_{case_id}.index")
+    return str(FAISS_DIR / f"case_{case_id}.index")
 
 
 def get_meta_path(case_id: int) -> str:
-    return os.path.join(FAISS_DIR, f"case_{case_id}.pkl")
+    return str(FAISS_DIR / f"case_{case_id}.pkl")
+
+
+def has_index(case_id: int) -> bool:
+    index_path = Path(get_index_path(case_id))
+    meta_path = Path(get_meta_path(case_id))
+    if not index_path.exists() or not meta_path.exists():
+        return False
+
+    try:
+        index = faiss.read_index(str(index_path))
+        metadata = load_metadata(case_id)
+    except Exception:
+        return False
+
+    return index.ntotal > 0 and len(metadata) > 0
 
 
 # Create or load index
 def load_or_create_index(case_id: int, dim: int):
     index_path = get_index_path(case_id)
 
-    if os.path.exists(index_path):
+    if Path(index_path).exists():
         index = faiss.read_index(index_path)
     else:
         index = faiss.IndexFlatL2(dim)
@@ -32,7 +48,7 @@ def load_or_create_index(case_id: int, dim: int):
 def load_metadata(case_id: int) -> List[str]:
     meta_path = get_meta_path(case_id)
 
-    if os.path.exists(meta_path):
+    if Path(meta_path).exists():
         with open(meta_path, "rb") as f:
             return pickle.load(f)
     return []
@@ -77,7 +93,7 @@ def search(
 ) -> List[Tuple[str, float]]:
     index_path = get_index_path(case_id)
 
-    if not os.path.exists(index_path):
+    if not Path(index_path).exists():
         return []
 
     index = faiss.read_index(index_path)

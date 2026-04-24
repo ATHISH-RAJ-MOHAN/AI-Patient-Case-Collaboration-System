@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <meta
+        name="description"
+        content="CareCollab is a case-based collaboration workspace for doctor-to-doctor messaging, shared documents, and AI-assisted case review."
+    >
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}?v={{ asset_version }}">
+    <script>
+        window.APP_CONFIG = {
+            apiBaseUrl: {{ frontend_api_base_url | tojson }},
+            routes: {
+                app: "/app",
+                login: "/login",
+                signup: "/signup"
+            }
+        };
+    </script>
+</head>
+<body class="page-{{ page }}">
+    {% block body %}{% endblock %}
+</body>
+</html>

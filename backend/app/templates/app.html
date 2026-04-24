@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block body %}
+<main class="workspace-shell" id="workspace-shell">
+    <aside class="workspace-panel sidebar" id="sidebar">
+        <div class="sidebar__header">
+            <div class="brand-lockup">
+                <span class="brand-mark">CC</span>
+                <div>
+                    <strong>CareCollab</strong>
+                    <span>Patient case messaging</span>
+                </div>
+            </div>
+            <button id="close-sidebar-button" class="icon-button icon-button--mobile" type="button" aria-label="Close conversation list">
+                ✕
+            </button>
+        </div>
+
+        <div class="sidebar__actions">
+            <button id="new-case-button" class="primary-button primary-button--compact" type="button">New Case</button>
+            <button id="refresh-button" class="secondary-button secondary-button--compact" type="button">Refresh</button>
+        </div>
+
+        <label class="search-field">
+            <span class="search-field__icon">⌕</span>
+            <input id="case-search" type="search" placeholder="Search cases or patient code">
+        </label>
+
+        <div class="section-kicker">Your Case Rooms</div>
+        <div id="case-list" class="case-list" aria-live="polite"></div>
+
+        <div class="sidebar__footer">
+            <div class="user-chip">
+                <span id="sidebar-user-avatar" class="user-chip__avatar">DR</span>
+                <div class="user-chip__copy">
+                    <strong id="sidebar-user-name">Loading user...</strong>
+                    <span id="sidebar-user-email">Checking session</span>
+                </div>
+            </div>
+            <button id="logout-button" class="ghost-button" type="button">Sign Out</button>
+        </div>
+    </aside>
+
+    <section class="workspace-panel chat-panel">
+        <header class="chat-panel__header">
+            <div class="chat-panel__title-row">
+                <button id="open-sidebar-button" class="icon-button icon-button--mobile" type="button" aria-label="Open conversation list">
+                    ☰
+                </button>
+                <div>
+                    <span id="case-header-kicker" class="eyebrow">Select a case</span>
+                    <h1 id="case-title">Case collaboration workspace</h1>
+                    <p id="case-subtitle" class="muted">Choose a conversation from the left sidebar to load messages.</p>
+                </div>
+            </div>
+
+            <div class="chat-panel__header-actions">
+                <span id="connection-badge" class="status-pill">Offline</span>
+                <button id="toggle-details-button" class="ghost-button" type="button">Case Details</button>
+            </div>
+        </header>
+
+        <div id="global-banner" class="banner" hidden></div>
+
+        <section id="message-list" class="message-list" aria-live="polite"></section>
+
+        <footer class="composer-panel">
+            <form id="composer-form" class="composer-form">
+                <label class="sr-only" for="message-input">Write a message</label>
+                <textarea
+                    id="message-input"
+                    name="message"
+                    rows="1"
+                    placeholder="Write an update for the care team..."
+                    autocomplete="off"
+                ></textarea>
+                <button id="send-button" class="primary-button" type="submit">Send</button>
+            </form>
+            <p id="composer-status" class="composer-status">
+                Use <code>@ai</code>, <code>/ai</code>, or the AI panel to ask case-grounded questions.
+            </p>
+        </footer>
+    </section>
+
+    <aside class="workspace-panel details-panel" id="details-panel">
+        <div class="details-panel__header">
+            <div>
+                <span class="eyebrow">Case context</span>
+                <h2 id="details-case-label">No case selected</h2>
+            </div>
+            <button id="close-details-button" class="icon-button icon-button--mobile" type="button" aria-label="Close case details">
+                ✕
+            </button>
+        </div>
+
+        <section class="info-card">
+            <div class="section-heading">
+                <h3>Overview</h3>
+            </div>
+            <div id="case-meta" class="empty-copy">
+                Select a case to view metadata, members, and shared resources.
+            </div>
+        </section>
+
+        <section class="info-card">
+            <div class="section-heading">
+                <h3>Ask AI About This Case</h3>
+                <button id="prefill-ai-message-button" class="ghost-button ghost-button--small" type="button">Ask in Chat</button>
+            </div>
+
+            <form id="ai-form" class="stack-form">
+                <textarea
+                    id="ai-question"
+                    rows="3"
+                    placeholder="Ask for a summary, key findings, timeline, or document-grounded answer..."
+                ></textarea>
+                <button id="ai-submit-button" class="secondary-button" type="submit">Run Case AI</button>
+            </form>
+
+            <div id="ai-response" class="empty-copy">
+                AI answers are grounded in uploaded case documents when available.
+            </div>
+        </section>
+
+        <section class="info-card">
+            <div class="section-heading">
+                <h3>Shared Documents</h3>
+                <label class="file-button" for="document-upload">Upload File</label>
+                <input id="document-upload" type="file" hidden>
+            </div>
+
+            <div id="document-feedback" class="muted"></div>
+            <div id="document-list" class="document-list"></div>
+        </section>
+
+        <section class="info-card">
+            <div class="section-heading">
+                <h3>Members</h3>
+                <span id="member-count-pill" class="status-pill status-pill--soft">0 members</span>
+            </div>
+            <div class="member-invite">
+                <label class="field">
+                    <span>Add teammate</span>
+                    <input id="member-search-input" type="search" placeholder="Search users by name or email">
+                </label>
+                <div id="member-search-feedback" class="muted member-search-feedback">
+                    Search for a teammate to add them to this case room.
+                </div>
+                <div id="member-search-results" class="member-search-results"></div>
+            </div>
+            <div id="member-list" class="member-list"></div>
+        </section>
+    </aside>
+</main>
+
+<div id="mobile-overlay" class="mobile-overlay" hidden></div>
+
+<div id="case-modal" class="modal" hidden>
+    <div class="modal__backdrop" data-close-modal="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="case-modal-title">
+        <div class="modal__header">
+            <div>
+                <span class="eyebrow">Create case room</span>
+                <h2 id="case-modal-title">Start a new collaboration thread</h2>
+            </div>
+            <button id="case-modal-close" class="icon-button" type="button" aria-label="Close new case form">✕</button>
+        </div>
+
+        <form id="case-form" class="stack-form">
+            <label class="field">
+                <span>Case title</span>
+                <input type="text" name="case_title" placeholder="Neurology consult follow-up" required>
+            </label>
+
+            <label class="field">
+                <span>Patient code</span>
+                <input type="text" name="patient_code" placeholder="PT-2048" required>
+            </label>
+
+            <div id="case-form-feedback" class="form-feedback" role="alert" hidden></div>
+
+            <div class="modal__actions">
+                <button id="case-create-button" class="primary-button" type="submit">Create Case</button>
+                <button id="case-cancel-button" class="secondary-button" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="{{ url_for('static', path='js/app.js') }}?v={{ asset_version }}"></script>
+{% endblock %}

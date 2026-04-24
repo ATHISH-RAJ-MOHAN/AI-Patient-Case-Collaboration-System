@@ -1,5 +1,6 @@
 import os
 import base64
+import mimetypes
 from pypdf import PdfReader
 from openai import OpenAI
 
@@ -20,7 +21,10 @@ def ocr_pdf_with_openai(file_path: str) -> str:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
         with open(file_path, "rb") as f:
-            file_data = base64.b64encode(f.read()).decode("utf-8")
+            encoded_file = base64.b64encode(f.read()).decode("utf-8")
+
+        mime_type = mimetypes.guess_type(file_path)[0] or "application/pdf"
+        file_data = f"data:{mime_type};base64,{encoded_file}"
 
         response = client.responses.create(
             model="gpt-4o-mini",
@@ -28,13 +32,12 @@ def ocr_pdf_with_openai(file_path: str) -> str:
                 {
                     "role": "user",
                     "content": [
-                        {"type": "input_text", "text": "Extract all readable text from this document."},
                         {
                             "type": "input_file",
                             "filename": os.path.basename(file_path),
                             "file_data": file_data,
-                            "detail": "high",
                         },
+                        {"type": "input_text", "text": "Extract all readable text from this document. Return plain text only."},
                     ],
                 }
             ],

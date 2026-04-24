@@ -2,12 +2,16 @@ fastapi
 uvicorn[standard]
 aiomysql
 sqlalchemy
+greenlet
 asyncmy
 python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt<4.1
 email-validator
 python-multipart
 pypdf
 pillow
 openai
+jinja2
+faiss-cpu

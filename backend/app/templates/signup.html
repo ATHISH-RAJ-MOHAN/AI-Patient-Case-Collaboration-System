@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block body %}
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-lockup">
+            <span class="brand-mark">CC</span>
+            <div>
+                <strong>CareCollab</strong>
+                <span>Clinical Collaboration Workspace</span>
+            </div>
+        </div>
+
+        <div class="auth-copy">
+            <span class="eyebrow">Shared case visibility</span>
+            <h1>Create an account and join your care team’s case threads.</h1>
+            <p>
+                The first version of the frontend keeps setup intentionally simple: create an account, sign in, and start with case-based messaging backed by the existing FastAPI APIs.
+            </p>
+        </div>
+
+        <div class="auth-feature-grid">
+            <article class="feature-card">
+                <h2>Messenger-style layout</h2>
+                <p>Switch between cases from the left rail while keeping the active conversation and details panel in view.</p>
+            </article>
+            <article class="feature-card">
+                <h2>Shared documents</h2>
+                <p>Upload PDFs and files directly into a case room so the team can reference the same material.</p>
+            </article>
+            <article class="feature-card">
+                <h2>Readable by design</h2>
+                <p>A calm, healthcare-appropriate visual system keeps long discussions easy to follow on desktop and tablet.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <span class="eyebrow">Create account</span>
+                <h2>Join CareCollab</h2>
+                <p>Accounts are created through the existing backend signup endpoint and then logged in automatically.</p>
+            </div>
+
+            <form id="auth-form" class="auth-form" data-auth-form data-mode="{{ auth_mode }}">
+                <label class="field">
+                    <span>Full name</span>
+                    <input type="text" name="full_name" autocomplete="name" placeholder="Dr. Jane Smith" required>
+                </label>
+
+                <label class="field">
+                    <span>Email</span>
+                    <input type="email" name="email" autocomplete="email" placeholder="doctor@hospital.org" required>
+                </label>
+
+                <label class="field">
+                    <span>Role</span>
+                    <select name="role">
+                        <option value="doctor">Doctor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Password</span>
+                    <input type="password" name="password" autocomplete="new-password" minlength="6" placeholder="Create a password" required>
+                </label>
+
+                <div id="auth-feedback" class="form-feedback" role="alert" hidden></div>
+
+                <button id="auth-submit" class="primary-button" type="submit">Create Account</button>
+            </form>
+
+            <p class="auth-switch">
+                Already registered?
+                <a href="/login">Sign in instead</a>
+            </p>
+        </div>
+    </section>
+</main>
+
+<script type="module" src="{{ url_for('static', path='js/auth.js') }}?v={{ asset_version }}"></script>
+{% endblock %}

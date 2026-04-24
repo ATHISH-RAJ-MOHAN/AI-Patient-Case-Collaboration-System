@@ -1,26 +1,18 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pathlib import Path
 import shutil
-import logging
+from pathlib import Path
 
 from app.db import get_db
 from app.models import Document, CaseMember, PatientCase, User
 from app.schemas import DocumentOut
 from app.security import get_current_user
 
-from app.ai.document_processor import extract_text
-from app.ai.chunking import chunk_text
-from app.ai.embeddings import get_embedding_batch
-from app.ai.faiss_store import add_embeddings
-
-logger = logging.getLogger(__name__)
+from app.ai.indexing import UPLOAD_DIR, index_document_for_ai
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
-# project_root/uploads
-UPLOAD_DIR = Path(__file__).resolve().parents[3] / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -29,36 +21,7 @@ def process_document_for_ai(case_id: int, disk_path: Path) -> None:
     Extract text, chunk it, create embeddings, and store in case-specific FAISS.
     This runs in the background so it does not block the upload response.
     """
-    try:
-        text = extract_text(str(disk_path))
-
-        if not text or not text.strip():
-            logger.warning("No text extracted from %s", disk_path)
-            return
-
-        chunks = [chunk.strip() for chunk in chunk_text(text) if chunk.strip()]
-        if not chunks:
-            logger.warning("No chunks created from %s", disk_path)
-            return
-
-        embeddings = get_embedding_batch(chunks)
-        if not embeddings:
-            logger.warning("No embeddings created for %s", disk_path)
-            return
-
-        valid_chunks = []
-        valid_embeddings = []
-        for chunk, emb in zip(chunks, embeddings):
-            if emb:
-                valid_chunks.append(chunk)
-                valid_embeddings.append(emb)
-
-        if valid_embeddings:
-            add_embeddings(case_id, valid_embeddings, valid_chunks)
-            logger.info("AI indexing complete for %s", disk_path)
-
-    except Exception as e:
-        logger.exception("AI processing failed for %s: %s", disk_path, e)
+    index_document_for_ai(case_id, disk_path)
 
 
 @router.post("/upload/{case_id}", response_model=DocumentOut)

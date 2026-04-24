@@ -10,6 +10,7 @@ from app.db import get_db
 from app.models import CaseMember, Message, PatientCase, User
 from app.schemas import MessageCreate, MessageOut
 from app.security import get_current_user, SECRET_KEY, ALGORITHM
+from app.ai.case_context import ensure_case_index
 from app.ai.embeddings import get_embedding
 from app.ai.faiss_store import search
 
@@ -146,7 +147,8 @@ Question:
     return response.choices[0].message.content or "I could not generate an answer."
 
 
-async def generate_case_ai_reply(case_id: int, question: str) -> str:
+async def generate_case_ai_reply(case_id: int, question: str, db: AsyncSession) -> str:
+    await ensure_case_index(case_id, db)
     return await asyncio.to_thread(generate_case_ai_reply_sync, case_id, question)
 
 
@@ -212,7 +214,7 @@ async def send_message(
     try:
         if should_ai_respond(payload.content):
             question = strip_ai_prefix(payload.content)
-            ai_text = await generate_case_ai_reply(case_id, question)
+            ai_text = await generate_case_ai_reply(case_id, question, db)
 
             ai_reply = await save_message(
                 db=db,
@@ -328,7 +330,7 @@ async def websocket_case_chat(websocket: WebSocket, case_id: int):
                     try:
                         if should_ai_respond(content):
                             question = strip_ai_prefix(content)
-                            ai_text = await generate_case_ai_reply(case_id, question)
+                            ai_text = await generate_case_ai_reply(case_id, question, db)
 
                             ai_message = await save_message(
                                 db=db,
@@ -358,7 +360,11 @@ async def websocket_case_chat(websocket: WebSocket, case_id: int):
                         except Exception:
                             pass
 
+                except WebSocketDisconnect:
+                    break
                 except Exception as e:
+                    if "disconnect message" in str(e).lower():
+                        break
                     print(f"[WEBSOCKET LOOP ERROR] {e}")
                     try:
                         await websocket.send_json(
@@ -370,6 +376,6 @@ async def websocket_case_chat(websocket: WebSocket, case_id: int):
                     except Exception:
                         pass
 
-        except WebSocketDisconnect:
+        finally:
             manager.disconnect(case_id, websocket)
             break

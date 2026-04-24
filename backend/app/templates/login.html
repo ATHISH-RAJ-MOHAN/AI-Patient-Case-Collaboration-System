@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block body %}
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-lockup">
+            <span class="brand-mark">CC</span>
+            <div>
+                <strong>CareCollab</strong>
+                <span>AI Patient Case Collaboration</span>
+            </div>
+        </div>
+
+        <div class="auth-copy">
+            <span class="eyebrow">Doctor-to-doctor case messaging</span>
+            <h1>Secure group chat built for active patient cases.</h1>
+            <p>
+                Coordinate around a single case timeline, share supporting documents, and keep AI help close to the conversation without cluttering the workflow.
+            </p>
+        </div>
+
+        <div class="auth-feature-grid">
+            <article class="feature-card">
+                <h2>Focused case rooms</h2>
+                <p>Each conversation is anchored to a patient case with members, files, and live updates in one view.</p>
+            </article>
+            <article class="feature-card">
+                <h2>Shared clinical context</h2>
+                <p>Recent messages, attachments, and case metadata stay visible so handoffs are easier to scan.</p>
+            </article>
+            <article class="feature-card">
+                <h2>AI when needed</h2>
+                <p>Ask quick case-grounded questions from the side panel or trigger AI directly in the thread with <code>@ai</code>.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <span class="eyebrow">Welcome back</span>
+                <h2>Sign in to your workspace</h2>
+                <p>Use your account to access your case conversations, members, and shared documents.</p>
+            </div>
+
+            <form id="auth-form" class="auth-form" data-auth-form data-mode="{{ auth_mode }}">
+                <label class="field">
+                    <span>Email</span>
+                    <input type="email" name="email" autocomplete="email" placeholder="doctor@hospital.org" required>
+                </label>
+
+                <label class="field">
+                    <span>Password</span>
+                    <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required>
+                </label>
+
+                <div id="auth-feedback" class="form-feedback" role="alert" hidden></div>
+
+                <button id="auth-submit" class="primary-button" type="submit">Sign In</button>
+            </form>
+
+            <p class="auth-switch">
+                Need an account?
+                <a href="/signup">Create one here</a>
+            </p>
+        </div>
+    </section>
+</main>
+
+<script type="module" src="{{ url_for('static', path='js/auth.js') }}?v={{ asset_version }}"></script>
+{% endblock %}

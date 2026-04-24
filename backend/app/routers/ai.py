@@ -1,6 +1,5 @@
 import os
 import asyncio
-from typing import List, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,6 +12,7 @@ from app.security import get_current_user
 from app.schemas import AIQueryRequest, AIQueryResponse, AISource
 from app.ai.embeddings import get_embedding
 from app.ai.faiss_store import search
+from app.ai.case_context import ensure_case_index
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
@@ -100,6 +100,8 @@ async def ai_query(
 
     if not member_result.scalar_one_or_none():
         raise HTTPException(status_code=403, detail="Not allowed in this case")
+
+    await ensure_case_index(payload.case_id, db)
 
     answer, sources_raw = await asyncio.to_thread(
         generate_case_ai_reply_sync,

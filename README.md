@@ -1,33 +1,30 @@
-# AI‑Patient‑Case Collaboration System - Backend
+# AI-Patient-Case Collaboration System
 
-This backend powers the AI‑Patient‑Case Collaboration System, a platform designed for secure doctor‑to‑doctor collaboration and AI‑assisted patient case analysis. The current version includes a complete authentication pipeline built with FastAPI, async SQLAlchemy, and JWT tokens.
+AI-Patient-Case Collaboration System is a FastAPI-based collaboration platform for doctor-to-doctor case discussion, document sharing, and AI-assisted patient case analysis. The project now includes a real web frontend served directly by FastAPI, so the backend and UI can be run together with a single local workflow.
 
----
+## Frontend Strategy
 
-##  Features Implemented
+The frontend is intentionally implemented with FastAPI `templates/` and `static/` instead of introducing a separate SPA toolchain.
 
-- User signup with hashed passwords  
-- User login with JWT token generation  
-- JWT authentication using HTTP Bearer  
-- `/auth/me` endpoint to fetch the current authenticated user  
-- Async SQLAlchemy models (User)  
-- Secure token decoding and validation  
-- Multi user group chat using websockets with http endpoints 
-- simple html page for testing the multi user
-- document sharing (reports, images, PDFs)
-- AI-powered question answering using embeddings (RAG)
-- Simple html page for testing the multi-user group chat
+- It fits the current backend-first architecture.
+- It keeps the local setup simple: one Python server, one port, same-origin API calls.
+- It mirrors the lightweight structure and simplicity of the `lab9/LLM-Chatbot` reference repo.
 
+## Features
 
-This forms the foundation for protected doctor‑only features in the healthcare system.
-
----
+- Login and signup pages backed by `/auth/login`, `/auth/signup`, and `/auth/me`
+- Messenger-style case chat shell with sidebar, active thread, and case detail panel
+- Searchable case list with last-message preview, patient code, timestamps, and document counts
+- Real-time case chat using the existing websocket endpoint, with polling fallback
+- Shared document list and upload flow using the existing document endpoints
+- AI case helper panel backed by the existing `/ai/query` route
+- Case creation modal using the existing `/cases` endpoint
+- Responsive layout for desktop, tablet, and mobile
 
 ## Project Structure
 
-```
+```text
 AI-Patient-Case-Collaboration-System/
-│
 ├── backend/
 │   ├── app/
 │   │   ├── main.py
@@ -36,159 +33,140 @@ AI-Patient-Case-Collaboration-System/
 │   │   ├── schemas.py
 │   │   ├── security.py
 │   │   ├── ai/
-│   │   │     ├── ai.py
-│   │   │     ├── document_processor.py
-│   │   │     ├── chunking.py
-│   │   │     ├── embeddings.py
-│   │   │     └── faiss_store.py
 │   │   ├── routers/
-│   │   │     ├── auth.py
-│   │   │     ├── cases.py
-│   │   │     ├── chat.py
-│   │   │     ├── documents.py
-│   │   │     └── ai.py
-│   │
-│   ├── requirements.txt
-│
+│   │   │   ├── auth.py
+│   │   │   ├── cases.py
+│   │   │   ├── chat.py
+│   │   │   ├── documents.py
+│   │   │   ├── ai.py
+│   │   │   └── frontend.py
+│   │   ├── static/
+│   │   │   ├── css/styles.css
+│   │   │   └── js/
+│   │   │       ├── api.js
+│   │   │       ├── app.js
+│   │   │       ├── auth.js
+│   │   │       ├── config.js
+│   │   │       ├── storage.js
+│   │   │       └── utils.js
+│   │   └── templates/
+│   │       ├── app.html
+│   │       ├── base.html
+│   │       ├── login.html
+│   │       └── signup.html
+│   └── requirements.txt
+├── sql/
 ├── uploads/
-├── faiss_indexes/
+├── testchat.html
 └── README.md
-
 ```
 
----
+## How To Run
 
-##  How to Run the Project
+### 1. Create and activate a virtual environment
 
-### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
-cd AI-Patient-Case-Collaboration-System
-```
-
-### 2. Create and activate a virtual environment
-```
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
+source venv/bin/activate
 ```
 
-### 3. Install dependencies
+On Windows:
+
+```bash
+venv\Scripts\activate
 ```
+
+### 2. Install dependencies
+
+```bash
 pip install -r backend/requirements.txt
 ```
 
-### 4. Run the FastAPI server (from the backend directory)
-```
-cd backend
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 
+### 3. Configure environment variables
+
+Set these values in the project root `.env` file:
+
+```env
+DATABASE_URL=mysql+aiomysql://<user>:<password>@<host>:3306/<db_name>
+JWT_SECRET=<your_jwt_secret>
+OPENAI_API_KEY=<optional_for_ai_features>
 ```
 
+Optional:
 
-### 5. Open API Docs - to test the backend
-```
-http://127.0.0.1:8000/docs
+```env
+FRONTEND_API_BASE_URL=
 ```
 
-### Backend Testing Flow (Auth → Cases → Chat)
-This guide walks through the full backend workflow: authentication, case management, and real‑time chat.
+`FRONTEND_API_BASE_URL` is not required for standard local development because the frontend is served by the same FastAPI app. Leave it blank unless you intentionally want the browser UI to target a different API origin.
 
-### Step 1: Create Users
+### 4. Start the server
+
+Run from the `backend/` directory:
+
+```bash
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
-Admin
+
+### 5. Open the app
+
+- Frontend UI: [http://127.0.0.1:8000/app](http://127.0.0.1:8000/app)
+- Login page: [http://127.0.0.1:8000/login](http://127.0.0.1:8000/login)
+- Signup page: [http://127.0.0.1:8000/signup](http://127.0.0.1:8000/signup)
+- Swagger docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+## Frontend Notes
+
+- Authentication state is stored in `localStorage` for local development convenience.
+- Unauthenticated users visiting `/app` are redirected to `/login`.
+- The UI uses the existing backend routes wherever possible and adds a small amount of read-only case metadata support for the sidebar and member panel.
+
+## Useful API Flows
+
+### Create example users
+
+```json
 { "full_name": "Admin One", "email": "admin@test.com", "password": "admin123", "role": "admin" }
-Doctor
 { "full_name": "Dr. Alice", "email": "alice@test.com", "password": "alice123", "role": "doctor" }
 ```
 
-### Step 2: Login
-```
-POST /auth/login
-Copy the returned JWT token.
-```
+### Create a case
 
-### Step 3: Authorize in Swagger
-```
-Click Authorize and paste:
-Bearer YOUR_TOKEN_HERE
-```
-
-### Step 4: Create a Case Room
-```
+```json
 POST /cases
-Body: { "patient_code": "P1001", "case_title": "Cardiology Review" }
+{ "patient_code": "P1001", "case_title": "Cardiology Review" }
 ```
 
-### Step 5: Add Member to Case
-```
-First enter the Case Id created in the place holder.
+### Add a member
+
+```json
 POST /cases/{case_id}/members
-Body: { "user_id": 2, "member_role": "doctor" }
+{ "user_id": 2, "member_role": "doctor" }
 ```
 
-### Step 6: Verify Case Access
-```
-As Admin
-GET /cases
+### Send a chat message
 
-As Doctor
-Login as doctor → Authorize → GET /cases
-```
-
-### Chat (REST API)
-```
-Send Message
+```json
 POST /cases/{case_id}/messages
-Body: { "content": "Patient is stable. Please review labs", "message_type": "text" }
-
-Get Messages
-GET /cases/{case_id}/messages
+{ "content": "Patient is stable. Please review labs", "message_type": "text" }
 ```
 
-### Real-Time Chat (WebSocket)
+### Trigger AI inside chat
 
-### 1. Open the test HTML file
-```
-test_chat.html
-```
-### 2. Enter values
-```
-Token → paste JWT (without "Bearer")
-Case ID → e.g., 3
-```
-### 3. Connect
-```
-Click Connect
-You should see:
-Connected
-```
-### 4. Send a message
-```
-Type a message → Send Message
-```
-### 5. Multi‑User Chat Test
-```
-Open two browser tabs:
-Tab 1 → Admin login
-Tab 2 → Doctor login
-Connect both to the same case_id.
-Send a message from one tab.
-Both tabs should receive the message instantly.
-```
-### 6. AI Test : 
-#### AI responds in chat, Answer is based on uploaded document, Case isolation maintained
-```
+```text
 @ai summarize this report
 ```
----
 
-## Note:
+## Real-Time Chat
 
-### Update your `.env` file before running the server
-- In `.env` file of the project root, add your database credentials and JWT settings:
+The frontend connects to the existing websocket endpoint:
+
+```text
+/cases/ws/cases/{case_id}?token=<jwt>
 ```
-DATABASE_URL=mysql+aiomysql://<user>:<password>@<host>:3306/<db_name>
-JWT_SECRET=<your_jwt_secret>
-```
-- Replace `<user>`, `<password>`, `<host>`, and `<db_name>` with your actual MySQL details, and set a secure value for `JWT_SECRET`.
-- Please refer your sql database tables for any case id's or user id's.
+
+If the websocket is unavailable, the UI falls back to periodic message polling for the active case.
+
+## Existing Test Page
+
+The original `testchat.html` is still present for low-level websocket testing if you want a minimal manual check outside the new frontend.
