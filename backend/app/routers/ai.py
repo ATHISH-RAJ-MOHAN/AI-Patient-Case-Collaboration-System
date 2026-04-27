@@ -4,7 +4,6 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from openai import OpenAI
 
 from app.db import get_db
 from app.models import CaseMember, User
@@ -13,6 +12,7 @@ from app.schemas import AIQueryRequest, AIQueryResponse, AISource
 from app.ai.embeddings import get_embedding
 from app.ai.faiss_store import search
 from app.ai.case_context import ensure_case_index
+from app.ai.openai_client import create_openai_client
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
@@ -53,7 +53,7 @@ def generate_case_ai_reply_sync(case_id: int, question: str) -> tuple[str, list[
 
     context = "\n".join([f"- {chunk}" for chunk, _score in results])
 
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = create_openai_client()
 
     prompt = f"""
 You are an AI assistant inside a patient case group chat.
@@ -103,11 +103,17 @@ async def ai_query(
 
     await ensure_case_index(payload.case_id, db)
 
-    answer, sources_raw = await asyncio.to_thread(
-        generate_case_ai_reply_sync,
-        payload.case_id,
-        payload.question,
-    )
+    try:
+        answer, sources_raw = await asyncio.to_thread(
+            generate_case_ai_reply_sync,
+            payload.case_id,
+            payload.question,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="AI request failed or timed out. Please try again.",
+        ) from exc
 
     sources = [AISource(chunk=item["chunk"], score=item["score"]) for item in sources_raw]
 

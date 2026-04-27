@@ -1,13 +1,15 @@
 import os
 import base64
 import mimetypes
-from pypdf import PdfReader
-from openai import OpenAI
+
+from app.ai.openai_client import OCR_OPENAI_TIMEOUT_SECONDS, create_openai_client
 
 
 def extract_text_from_pdf(file_path: str) -> str:
     text = ""
     try:
+        from pypdf import PdfReader
+
         reader = PdfReader(file_path)
         for page in reader.pages:
             text += page.extract_text() or ""
@@ -18,7 +20,7 @@ def extract_text_from_pdf(file_path: str) -> str:
 
 def ocr_pdf_with_openai(file_path: str) -> str:
     try:
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        client = create_openai_client(timeout_seconds=OCR_OPENAI_TIMEOUT_SECONDS)
 
         with open(file_path, "rb") as f:
             encoded_file = base64.b64encode(f.read()).decode("utf-8")

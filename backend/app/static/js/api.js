@@ -27,6 +27,8 @@ async function request(path, options = {}) {
         body,
         formData,
         headers = {},
+        timeoutMs = 0,
+        timeoutMessage = "Request timed out.",
     } = options;
 
     const requestHeaders = new Headers(headers);
@@ -40,6 +42,15 @@ async function request(path, options = {}) {
         headers: requestHeaders,
     };
 
+    let timeoutId = null;
+    let controller = null;
+
+    if (timeoutMs > 0) {
+        controller = new AbortController();
+        requestInit.signal = controller.signal;
+        timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    }
+
     if (formData) {
         requestInit.body = formData;
     } else if (body !== undefined) {
@@ -47,15 +58,26 @@ async function request(path, options = {}) {
         requestInit.body = JSON.stringify(body);
     }
 
-    const response = await fetch(apiUrl(path), requestInit);
-    const payload = await readPayload(response);
+    try {
+        const response = await fetch(apiUrl(path), requestInit);
+        const payload = await readPayload(response);
 
-    if (!response.ok) {
-        const message = payload.detail || payload.message || payload.error || "Request failed.";
-        throw new ApiError(message, response.status, payload);
+        if (!response.ok) {
+            const message = payload.detail || payload.message || payload.error || "Request failed.";
+            throw new ApiError(message, response.status, payload);
+        }
+
+        return payload;
+    } catch (error) {
+        if (error?.name === "AbortError") {
+            throw new ApiError(timeoutMessage, 408, { detail: timeoutMessage });
+        }
+        throw error;
+    } finally {
+        if (timeoutId) {
+            window.clearTimeout(timeoutId);
+        }
     }
-
-    return payload;
 }
 
 export function login(credentials) {
@@ -143,5 +165,7 @@ export function queryAi(payload, token) {
         method: "POST",
         token,
         body: payload,
+        timeoutMs: 45000,
+        timeoutMessage: "AI is taking longer than expected. If this is the first question after uploading documents, wait a moment and try again.",
     });
 }

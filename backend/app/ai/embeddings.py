@@ -1,11 +1,12 @@
 import os
 from typing import List
-from openai import OpenAI
+
+from app.ai.openai_client import create_openai_client
 
 
 def get_embedding(text: str) -> List[float]:
     try:
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        client = create_openai_client()
         response = client.embeddings.create(
             model="text-embedding-3-small",
             input=text,
@@ -18,7 +19,7 @@ def get_embedding(text: str) -> List[float]:
 
 def get_embedding_batch(texts: list[str]) -> list[list[float]]:
     try:
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        client = create_openai_client()
         response = client.embeddings.create(
             model="text-embedding-3-small",
             input=texts,

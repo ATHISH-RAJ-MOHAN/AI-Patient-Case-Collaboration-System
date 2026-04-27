@@ -10,7 +10,20 @@ router = APIRouter(include_in_schema=False)
 
 APP_DIR = Path(__file__).resolve().parents[1]
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
-ASSET_VERSION = "20260420a"
+
+
+def get_asset_version() -> str:
+    """
+    Use the latest mtime from templates/static so browser reloads pick up
+    frontend changes during local development without manual cache clearing.
+    """
+    latest_mtime = 0.0
+    for folder in (APP_DIR / "static", APP_DIR / "templates"):
+        for path in folder.rglob("*"):
+            if path.is_file():
+                latest_mtime = max(latest_mtime, path.stat().st_mtime)
+
+    return str(int(latest_mtime)) if latest_mtime else "dev"
 
 
 def build_template_context(request: Request, title: str, page: str, auth_mode: str | None = None) -> dict:
@@ -19,7 +32,7 @@ def build_template_context(request: Request, title: str, page: str, auth_mode: s
         "title": title,
         "page": page,
         "auth_mode": auth_mode,
-        "asset_version": ASSET_VERSION,
+        "asset_version": get_asset_version(),
         "frontend_api_base_url": os.getenv("FRONTEND_API_BASE_URL", "").rstrip("/"),
     }
 

@@ -2,17 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSoc
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
-from openai import OpenAI
 import os
 import asyncio
 
-from app.db import get_db
+from app.db import SessionLocal, get_db
 from app.models import CaseMember, Message, PatientCase, User
 from app.schemas import MessageCreate, MessageOut
 from app.security import get_current_user, SECRET_KEY, ALGORITHM
 from app.ai.case_context import ensure_case_index
 from app.ai.embeddings import get_embedding
 from app.ai.faiss_store import search
+from app.ai.openai_client import create_openai_client
 
 router = APIRouter(prefix="/cases", tags=["Messages"])
 
@@ -117,7 +117,7 @@ def generate_case_ai_reply_sync(case_id: int, question: str) -> str:
 
     context = "\n".join([f"- {chunk}" for chunk, _score in results])
 
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = create_openai_client()
 
     prompt = f"""
 You are an AI assistant inside a patient case group chat.
@@ -150,6 +150,54 @@ Question:
 async def generate_case_ai_reply(case_id: int, question: str, db: AsyncSession) -> str:
     await ensure_case_index(case_id, db)
     return await asyncio.to_thread(generate_case_ai_reply_sync, case_id, question)
+
+
+async def create_and_broadcast_ai_reply(
+    case_id: int,
+    sender_id: int,
+    question: str,
+    reply_to_id: int,
+):
+    try:
+        async with SessionLocal() as db:
+            ai_text = await generate_case_ai_reply(case_id, question, db)
+            ai_reply = await save_message(
+                db=db,
+                case_id=case_id,
+                sender_id=sender_id,
+                message_type="ai",
+                content=ai_text,
+                reply_to_id=reply_to_id,
+            )
+
+            await manager.broadcast(
+                case_id,
+                {
+                    "type": "new_message",
+                    "data": MessageOut.model_validate(ai_reply).model_dump(mode="json"),
+                },
+            )
+    except Exception as e:
+        print(f"[AI ERROR] {e}")
+        try:
+            async with SessionLocal() as db:
+                ai_error_reply = await save_message(
+                    db=db,
+                    case_id=case_id,
+                    sender_id=sender_id,
+                    message_type="ai",
+                    content="AI request failed or timed out. Please try again.",
+                    reply_to_id=reply_to_id,
+                )
+                await manager.broadcast(
+                    case_id,
+                    {
+                        "type": "new_message",
+                        "data": MessageOut.model_validate(ai_error_reply).model_dump(mode="json"),
+                    },
+                )
+        except Exception as inner_error:
+            print(f"[AI ERROR MESSAGE FAILED] {inner_error}")
 
 
 async def save_message(
@@ -211,29 +259,16 @@ async def send_message(
         },
     )
 
-    try:
-        if should_ai_respond(payload.content):
-            question = strip_ai_prefix(payload.content)
-            ai_text = await generate_case_ai_reply(case_id, question, db)
-
-            ai_reply = await save_message(
-                db=db,
+    if should_ai_respond(payload.content):
+        question = strip_ai_prefix(payload.content)
+        asyncio.create_task(
+            create_and_broadcast_ai_reply(
                 case_id=case_id,
                 sender_id=current_user.id,
-                message_type="ai",
-                content=ai_text,
+                question=question,
                 reply_to_id=new_message.id,
             )
-
-            await manager.broadcast(
-                case_id,
-                {
-                    "type": "new_message",
-                    "data": MessageOut.model_validate(ai_reply).model_dump(mode="json"),
-                },
-            )
-    except Exception as e:
-        print(f"[AI ERROR] {e}")
+        )
 
     return new_message
 
@@ -327,38 +362,16 @@ async def websocket_case_chat(websocket: WebSocket, case_id: int):
                         },
                     )
 
-                    try:
-                        if should_ai_respond(content):
-                            question = strip_ai_prefix(content)
-                            ai_text = await generate_case_ai_reply(case_id, question, db)
-
-                            ai_message = await save_message(
-                                db=db,
+                    if should_ai_respond(content):
+                        question = strip_ai_prefix(content)
+                        asyncio.create_task(
+                            create_and_broadcast_ai_reply(
                                 case_id=case_id,
                                 sender_id=current_user.id,
-                                message_type="ai",
-                                content=ai_text,
+                                question=question,
                                 reply_to_id=user_message.id,
                             )
-
-                            await manager.broadcast(
-                                case_id,
-                                {
-                                    "type": "new_message",
-                                    "data": MessageOut.model_validate(ai_message).model_dump(mode="json"),
-                                },
-                            )
-                    except Exception as e:
-                        print(f"[AI ERROR] {e}")
-                        try:
-                            await websocket.send_json(
-                                {
-                                    "type": "error",
-                                    "message": "AI reply failed",
-                                }
-                            )
-                        except Exception:
-                            pass
+                        )
 
                 except WebSocketDisconnect:
                     break

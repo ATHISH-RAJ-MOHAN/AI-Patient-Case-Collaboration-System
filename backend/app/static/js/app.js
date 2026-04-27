@@ -8,7 +8,6 @@ import {
     fetchCaseSummaries,
     fetchMe,
     logout,
-    queryAi,
     searchUsers,
     sendCaseMessage,
     uploadDocument,
@@ -52,11 +51,6 @@ const sendButton = document.querySelector("#send-button");
 const composerStatus = document.querySelector("#composer-status");
 const detailsCaseLabel = document.querySelector("#details-case-label");
 const caseMeta = document.querySelector("#case-meta");
-const aiForm = document.querySelector("#ai-form");
-const aiQuestion = document.querySelector("#ai-question");
-const aiResponse = document.querySelector("#ai-response");
-const aiSubmitButton = document.querySelector("#ai-submit-button");
-const prefillAiMessageButton = document.querySelector("#prefill-ai-message-button");
 const documentUpload = document.querySelector("#document-upload");
 const documentList = document.querySelector("#document-list");
 const documentFeedback = document.querySelector("#document-feedback");
@@ -96,12 +90,6 @@ const state = {
     searchQuery: "",
     bannerMessage: "",
     bannerType: "error",
-    ai: {
-        loading: false,
-        answer: "",
-        sources: [],
-        error: "",
-    },
     memberSearch: {
         query: "",
         results: [],
@@ -279,7 +267,7 @@ function renderComposer() {
     sendButton.textContent = state.sendingMessage ? "Sending..." : "Send";
 
     composerStatus.innerHTML = activeCase
-        ? `Use <code>@ai</code>, <code>/ai</code>, or the AI panel to ask case-grounded questions.`
+        ? `Use <code>@ai</code> or <code>/ai</code> in the chat to ask case-grounded questions.`
         : "Select a case to send messages and collaborate in real time.";
 }
 
@@ -376,68 +364,6 @@ function renderCaseMeta() {
             <span>Documents</span>
             <strong>${activeCase.document_count}</strong>
         </div>
-    `;
-}
-
-function renderAi() {
-    const activeCase = getActiveCase();
-
-    aiQuestion.disabled = !activeCase || state.ai.loading;
-    aiSubmitButton.disabled = !activeCase || state.ai.loading;
-    prefillAiMessageButton.disabled = !activeCase;
-    aiSubmitButton.textContent = state.ai.loading ? "Running..." : "Run Case AI";
-    delete aiResponse.dataset.type;
-
-    if (!activeCase) {
-        aiResponse.className = "empty-copy";
-        aiResponse.textContent = "Select a case before running AI analysis.";
-        return;
-    }
-
-    if (state.ai.loading) {
-        aiResponse.className = "empty-copy";
-        aiResponse.textContent = "Generating a case-grounded answer...";
-        return;
-    }
-
-    if (state.ai.error) {
-        aiResponse.className = "form-feedback";
-        aiResponse.dataset.type = "error";
-        aiResponse.textContent = state.ai.error;
-        return;
-    }
-
-    if (!state.ai.answer) {
-        aiResponse.className = "empty-copy";
-        aiResponse.textContent = "AI answers are grounded in uploaded case documents when available.";
-        return;
-    }
-
-    aiResponse.className = "ai-answer";
-    aiResponse.innerHTML = `
-        <article class="ai-answer__body">
-            <h4>Answer</h4>
-            <p>${escapeHtml(state.ai.answer)}</p>
-        </article>
-        ${
-            state.ai.sources.length
-                ? `
-                    <div class="ai-answer__sources">
-                        <h4>Supporting excerpts</h4>
-                        ${state.ai.sources
-                            .slice(0, 3)
-                            .map(
-                                (source) => `
-                                    <article class="source-snippet">
-                                        <p>${escapeHtml(truncateText(source.chunk, 220))}</p>
-                                    </article>
-                                `
-                            )
-                            .join("")}
-                    </div>
-                `
-                : ""
-        }
     `;
 }
 
@@ -567,7 +493,6 @@ function renderMemberInvite() {
 
 function renderDetails() {
     renderCaseMeta();
-    renderAi();
     renderDocuments();
     renderMemberInvite();
     renderMembers();
@@ -825,7 +750,6 @@ async function selectCase(caseId) {
     state.activeCaseId = Number(caseId);
     setActiveCaseId(state.activeCaseId);
     state.loadingConversation = true;
-    state.ai = { loading: false, answer: "", sources: [], error: "" };
     state.memberSearch = {
         query: "",
         results: [],
@@ -962,57 +886,6 @@ async function handleMessageSubmit(event) {
         handleError(error, "Message could not be sent.");
         renderComposer();
     }
-}
-
-async function handleAiSubmit(event) {
-    event.preventDefault();
-    const activeCase = getActiveCase();
-    const question = aiQuestion.value.trim();
-
-    if (!activeCase || !question) {
-        return;
-    }
-
-    state.ai = {
-        loading: true,
-        answer: "",
-        sources: [],
-        error: "",
-    };
-    renderAi();
-
-    try {
-        const response = await queryAi(
-            {
-                case_id: activeCase.id,
-                question,
-            },
-            state.token,
-        );
-
-        state.ai = {
-            loading: false,
-            answer: response.answer,
-            sources: response.sources || [],
-            error: "",
-        };
-        renderAi();
-    } catch (error) {
-        state.ai = {
-            loading: false,
-            answer: "",
-            sources: [],
-            error: error.message || "AI analysis failed.",
-        };
-        renderAi();
-    }
-}
-
-function handlePrefillAiMessage() {
-    const question = aiQuestion.value.trim();
-    messageInput.value = question ? `@ai ${question}` : "@ai ";
-    autoResizeTextarea(messageInput);
-    messageInput.focus();
 }
 
 async function handleDocumentUpload(event) {
@@ -1188,7 +1061,6 @@ caseList.addEventListener("click", (event) => {
 });
 
 composerForm.addEventListener("submit", handleMessageSubmit);
-aiForm.addEventListener("submit", handleAiSubmit);
 documentUpload.addEventListener("change", handleDocumentUpload);
 memberSearchInput.addEventListener("input", handleMemberSearchInput);
 memberSearchResults.addEventListener("click", (event) => {
@@ -1199,7 +1071,6 @@ memberSearchResults.addEventListener("click", (event) => {
 
     handleAddMember(Number(inviteButton.dataset.inviteUserId));
 });
-prefillAiMessageButton.addEventListener("click", handlePrefillAiMessage);
 messageInput.addEventListener("input", () => autoResizeTextarea(messageInput));
 newCaseButton.addEventListener("click", openCaseModal);
 refreshButton.addEventListener("click", handleRefresh);
