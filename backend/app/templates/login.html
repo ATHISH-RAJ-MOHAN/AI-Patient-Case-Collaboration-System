@@ -3,12 +3,13 @@
 {% block body %}
 <main class="auth-shell">
     <section class="auth-hero">
-        <div class="brand-lockup">
-            <span class="brand-mark">CC</span>
-            <div>
-                <strong>CareCollab</strong>
-                <span>AI Patient Case Collaboration</span>
-            </div>
+        <div class="brand-lockup brand-lockup--auth">
+            <img
+                class="brand-logo brand-logo--full"
+                src="{{ url_for('static', path='img/carecollab_logo_wordmark.png') }}?v={{ asset_version }}"
+                alt="CareCollab"
+            >
+            <span class="brand-lockup__descriptor">AI Patient Case Collaboration</span>
         </div>
 
         <div class="auth-copy">

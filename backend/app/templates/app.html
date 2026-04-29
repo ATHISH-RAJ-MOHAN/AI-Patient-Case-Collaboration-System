@@ -4,9 +4,15 @@
 <main class="workspace-shell" id="workspace-shell">
     <aside class="workspace-panel sidebar" id="sidebar">
         <div class="sidebar__header">
-            <div class="brand-lockup">
-                <span class="brand-mark">CC</span>
-                <div>
+            <div class="brand-lockup brand-lockup--sidebar">
+                <span class="brand-mark brand-mark--logo" aria-hidden="true">
+                    <img
+                        class="brand-logo brand-logo--mark"
+                        src="{{ url_for('static', path='img/carecollab_logo_mark.png') }}?v={{ asset_version }}"
+                        alt=""
+                    >
+                </span>
+                <div class="brand-lockup__copy">
                     <strong>CareCollab</strong>
                     <span>Patient case messaging</span>
                 </div>
