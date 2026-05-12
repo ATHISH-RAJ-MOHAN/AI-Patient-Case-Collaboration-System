@@ -1,0 +1,102 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.agent_sphere.ai_patient_case_collaboration_system"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+7-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:6:5-8:41
+8        android:minSdkVersion="21"
+8-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:7:9-35
+9        android:targetSdkVersion="34" />
+9-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:8:9-38
+10    ```
+11    ```
+12    <queries>
+12-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\ATHISH\.gradle\caches\8.13\transforms\773fdde205a4e53813b988cfdb1f2bc0\transformed\jetified-androidbrowserhelper-2.5.0\AndroidManifest.xml:26:5-34:15
+13        <intent>
+13-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\ATHISH\.gradle\caches\8.13\transforms\773fdde205a4e53813b988cfdb1f2bc0\transformed\jetified-androidbrowserhelper-2.5.0\AndroidManifest.xml:27:9-33:18
+14            <action android:name="android.intent.action.VIEW" />
+14-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:29:17-69
+14-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:29:25-66
+15
+16            <category android:name="android.intent.category.BROWSABLE" />
+16-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:32:17-78
+16-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:32:27-75
+17
+18            <data android:scheme="https" />
+18-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:34:17-36:80
+18-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:35:21-43
+19        </intent>
+20    </queries>
+21
+22    <application
+22-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:10:5-46:19
+23        android:allowBackup="true"
+23-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:13:9-35
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.1.0] C:\Users\ATHISH\.gradle\caches\8.13\transforms\2be6921bbd26dcfad7b49e3ad4633350\transformed\core-1.1.0\AndroidManifest.xml:24:18-86
+25        android:debuggable="true"
+26        android:extractNativeLibs="true"
+27        android:icon="@mipmap/ic_launcher"
+27-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:12:9-43
+28        android:label="@string/app_name"
+28-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:11:9-41
+29        android:supportsRtl="true"
+29-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:14:9-35
+30        android:testOnly="true" >
+31        <meta-data
+31-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:16:9-18:59
+32            android:name="asset_statements"
+32-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:17:13-44
+33            android:resource="@string/asset_statements" />
+33-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:18:13-56
+34
+35        <activity
+35-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:20:9-44:20
+36            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+36-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:21:13-84
+37            android:exported="true" >
+37-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:22:13-36
+38            <meta-data
+38-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:24:13-26:54
+39                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+39-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:25:17-78
+40                android:value="@string/defaultUrl" />
+40-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:26:17-51
+41
+42            <intent-filter android:autoVerify="true" >
+42-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:28:13-37:29
+42-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:28:28-53
+43                <action android:name="android.intent.action.VIEW" />
+43-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:29:17-69
+43-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:29:25-66
+44
+45                <category android:name="android.intent.category.DEFAULT" />
+45-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:31:17-76
+45-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:31:27-73
+46                <category android:name="android.intent.category.BROWSABLE" />
+46-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:32:17-78
+46-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:32:27-75
+47
+48                <data
+48-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:34:17-36:80
+49                    android:host="bettyann-unfirm-seasonedly.ngrok-free.dev"
+49-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:36:21-77
+50                    android:scheme="https" />
+50-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:35:21-43
+51            </intent-filter>
+52            <intent-filter>
+52-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:39:13-42:29
+53                <action android:name="android.intent.action.MAIN" />
+53-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:40:17-69
+53-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:40:25-66
+54
+55                <category android:name="android.intent.category.LAUNCHER" />
+55-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:41:17-77
+55-->C:\Users\ATHISH\AndroidStudioProjects\twa_android_src\app\src\main\AndroidManifest.xml:41:27-74
+56            </intent-filter>
+57        </activity>
+58    </application>
+59
+60</manifest>

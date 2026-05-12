@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- App Name -->
+    <string name="app_name">CareCollab</string>
+
+    <!-- Ngrok URL -->
+    <string name="defaultUrl">YOUR Ngrok URL/app</string>
+
+    ```
+    <string name="asset_statements">
+    [
+      {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+          "namespace": "web",
+          "site": "YOUR Ngrok URL"
+        }
+      }
+    ]
+</string>
+    ```
+
+</resources>
