@@ -3,6 +3,8 @@ from pathlib import Path
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
@@ -53,13 +55,7 @@ async def root():
         "frontend_url": "/app",
     }
 
-# create a route
-@app.get("/health_check-db") # this is an endpoint to test the database connection
-# Inject DB Session
-async def health_check_db(db: AsyncSession = Depends(get_db)):
+@app.get("/.well-known/assetlinks.json")
+def assetlinks():
+    return FileResponse("app/static/.well-known/assetlinks.json", media_type="application/json")
 
-    # run sql -- sqlalchemy uses text() for raw SQL, AsyncSession uses await db.execute()
-    result = await db.execute(text("SELECT 1"))
-
-    # return result
-    return {"status":"connected", "result": result.scalar()}
