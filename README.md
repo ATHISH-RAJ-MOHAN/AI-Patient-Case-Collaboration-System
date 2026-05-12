@@ -52,8 +52,7 @@ AI-Patient-Case-Collaboration-System/
 │   │       ├── login.html
 │   │       └── signup.html
 │   └── requirements.txt
-├── android/
-│   └── mobile_app/
+├── mobile_app/
 ├── sql/
 ├── uploads/
 └── README.md
