@@ -97,7 +97,24 @@ OPENAI_API_KEY=<optional_for_ai_features>
 
 ---
 
-### 4. Start the server
+### 4. Set up the database
+
+Ensure MySQL is running.
+
+Run the SQL setup files in order:
+
+```bash
+mysql -u <user> -p < sql/setup.sql
+mysql -u <user> -p groupchat < sql/schema.sql
+```
+* setup.sql → creates database and user
+* schema.sql → creates tables and schema
+
+Make sure your .env file matches the database credentials created in setup.sql.
+
+---
+
+### 5. Start the server
 
 ```bash
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
