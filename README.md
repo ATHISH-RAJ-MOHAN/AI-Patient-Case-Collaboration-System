@@ -253,7 +253,7 @@ For full-screen mode, host:
 Must match:
 
 * package name
-* SHA-256 fingerprint
+* SHA-256 fingerprint [Make sure to update your SHA256 certificate in the assetlinks.json file]
 * domain
 
 ---
